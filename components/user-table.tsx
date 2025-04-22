@@ -18,7 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { getUserPermissions } from "@/lib/permissions"
+import { getUserPermissionsClient } from "@/lib/permissions"
+import { useToast } from "@/hooks/use-toast"
 
 interface User {
   id: string
@@ -41,12 +42,13 @@ export default function UserTable({ users }: UserTableProps) {
   const [userPermissions, setUserPermissions] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { toast } = useToast()
 
   // Fetch user permissions on component mount
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const permissions = await getUserPermissions()
+        const permissions = await getUserPermissionsClient()
         setUserPermissions(permissions)
       } catch (error) {
         console.error("Failed to fetch user permissions:", error)
@@ -66,9 +68,22 @@ export default function UserTable({ users }: UserTableProps) {
 
     try {
       await deleteUser(userToDelete.id)
+
+      toast({
+        title: "Success",
+        description: `User "${userToDelete.name}" deleted successfully`,
+        variant: "success",
+      })
+
       router.refresh()
     } catch (error) {
       console.error("Failed to delete user:", error)
+
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      })
     } finally {
       setDeleteDialogOpen(false)
       setUserToDelete(null)

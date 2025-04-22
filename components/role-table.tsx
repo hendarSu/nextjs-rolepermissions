@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useToast } from "@/hooks/use-toast"
 
 interface Permission {
   id: string
@@ -41,15 +42,29 @@ export default function RoleTable({ roles }: RoleTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [roleToDelete, setRoleToDelete] = useState<Role | null>(null)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleDelete = async () => {
     if (!roleToDelete) return
 
     try {
       await deleteRole(roleToDelete.id)
+
+      toast({
+        title: "Success",
+        description: `Role "${roleToDelete.name}" deleted successfully`,
+        variant: "success",
+      })
+
       router.refresh()
     } catch (error) {
       console.error("Failed to delete role:", error)
+
+      toast({
+        title: "Error",
+        description: "Failed to delete role",
+        variant: "destructive",
+      })
     } finally {
       setDeleteDialogOpen(false)
       setRoleToDelete(null)

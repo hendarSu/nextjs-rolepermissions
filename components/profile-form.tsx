@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { updateProfile } from "@/lib/actions/user-actions"
+import { useToast } from "@/hooks/use-toast"
 
 interface User {
   id: string
@@ -30,15 +31,14 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
-    setSuccess("")
 
     // Validate passwords if trying to change them
     if (newPassword) {
@@ -63,7 +63,12 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         newPassword: newPassword || undefined,
       })
 
-      setSuccess("Profile updated successfully")
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+        variant: "success",
+      })
+
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
@@ -71,6 +76,12 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     } catch (err) {
       setError("Failed to update profile")
       console.error(err)
+
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -85,7 +96,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {error && <div className="rounded-md bg-red-50 p-2 text-sm text-red-500">{error}</div>}
-            {success && <div className="rounded-md bg-green-50 p-2 text-sm text-green-500">{success}</div>}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">

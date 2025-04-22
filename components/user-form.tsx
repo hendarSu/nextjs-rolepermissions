@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { createUser, updateUser } from "@/lib/actions/user-actions"
+import { useToast } from "@/hooks/use-toast"
 
 interface Role {
   id: string
@@ -40,6 +41,7 @@ export default function UserForm({ user, roles, isNewUser }: UserFormProps) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,6 +63,12 @@ export default function UserForm({ user, roles, isNewUser }: UserFormProps) {
           roleId,
           active,
         })
+
+        toast({
+          title: "Success",
+          description: "User created successfully",
+          variant: "success",
+        })
       } else if (user) {
         await updateUser(user.id, {
           name,
@@ -69,6 +77,12 @@ export default function UserForm({ user, roles, isNewUser }: UserFormProps) {
           roleId,
           active,
         })
+
+        toast({
+          title: "Success",
+          description: "User updated successfully",
+          variant: "success",
+        })
       }
 
       router.push("/dashboard/users")
@@ -76,6 +90,12 @@ export default function UserForm({ user, roles, isNewUser }: UserFormProps) {
     } catch (err) {
       setError("Failed to save user")
       console.error(err)
+
+      toast({
+        title: "Error",
+        description: "Failed to save user",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }

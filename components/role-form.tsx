@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { createRole, updateRole } from "@/lib/actions/role-actions"
+import { useToast } from "@/hooks/use-toast"
 
 interface Permission {
   id: string
@@ -38,6 +39,7 @@ export default function RoleForm({ role, allPermissions, isNewRole }: RoleFormPr
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const handlePermissionChange = (permissionId: string, checked: boolean) => {
     if (checked) {
@@ -59,11 +61,23 @@ export default function RoleForm({ role, allPermissions, isNewRole }: RoleFormPr
           description,
           permissionIds: selectedPermissions,
         })
+
+        toast({
+          title: "Success",
+          description: "Role created successfully",
+          variant: "success",
+        })
       } else if (role) {
         await updateRole(role.id, {
           name,
           description,
           permissionIds: selectedPermissions,
+        })
+
+        toast({
+          title: "Success",
+          description: "Role updated successfully",
+          variant: "success",
         })
       }
 
@@ -72,6 +86,12 @@ export default function RoleForm({ role, allPermissions, isNewRole }: RoleFormPr
     } catch (err) {
       setError("Failed to save role")
       console.error(err)
+
+      toast({
+        title: "Error",
+        description: "Failed to save role",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
