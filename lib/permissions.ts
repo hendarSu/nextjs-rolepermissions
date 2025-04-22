@@ -36,3 +36,18 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
 
   return permissions?.permissions || []
 }
+
+// Client-side function to get current user's permissions
+export async function getUserPermissionsClient(): Promise<string[]> {
+  try {
+    const response = await fetch("/api/permissions")
+    if (!response.ok) {
+      throw new Error("Failed to fetch permissions")
+    }
+    const data = await response.json()
+    return data.permissions
+  } catch (error) {
+    console.error("Error fetching permissions:", error)
+    return []
+  }
+}

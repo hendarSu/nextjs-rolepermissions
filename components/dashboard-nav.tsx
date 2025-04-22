@@ -34,10 +34,12 @@ export default function DashboardNav({ user }: DashboardNavProps) {
     window.location.href = "/login"
   }
 
+  // Update the navItems array to include the permissions page
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Users", href: "/dashboard/users" },
     { name: "Roles", href: "/dashboard/roles" },
+    { name: "Permissions", href: "/dashboard/permissions" },
   ]
 
   return (

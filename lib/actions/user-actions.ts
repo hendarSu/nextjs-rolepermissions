@@ -5,6 +5,7 @@ import { query, queryOne } from "../db"
 import { hashPassword, verifyPassword } from "../auth"
 import { getSession } from "../auth"
 import { redirect } from "next/navigation"
+import { hasPermission } from "../permissions"
 
 export async function getUsers() {
   const users = await query<{
@@ -85,6 +86,14 @@ export async function createUser(data: CreateUserData) {
   const session = await getSession()
   if (!session) redirect("/login")
 
+  // Check if user has create_users permission or manage_users permission
+  const canCreateUsers = await hasPermission(session.user.id, "create_users")
+  const canManageUsers = await hasPermission(session.user.id, "manage_users")
+
+  if (!canCreateUsers && !canManageUsers) {
+    throw new Error("You don't have permission to create users")
+  }
+
   const hashedPassword = await hashPassword(data.password)
 
   await queryOne(
@@ -110,6 +119,14 @@ interface UpdateUserData {
 export async function updateUser(id: string, data: UpdateUserData) {
   const session = await getSession()
   if (!session) redirect("/login")
+
+  // Check if user has edit_users permission or manage_users permission
+  const canEditUsers = await hasPermission(session.user.id, "edit_users")
+  const canManageUsers = await hasPermission(session.user.id, "manage_users")
+
+  if (!canEditUsers && !canManageUsers) {
+    throw new Error("You don't have permission to edit users")
+  }
 
   // If password is provided, hash it
   if (data.password) {
@@ -140,6 +157,14 @@ export async function updateUser(id: string, data: UpdateUserData) {
 export async function deleteUser(id: string) {
   const session = await getSession()
   if (!session) redirect("/login")
+
+  // Check if user has delete_users permission or manage_users permission
+  const canDeleteUsers = await hasPermission(session.user.id, "delete_users")
+  const canManageUsers = await hasPermission(session.user.id, "manage_users")
+
+  if (!canDeleteUsers && !canManageUsers) {
+    throw new Error("You don't have permission to delete users")
+  }
 
   // Prevent deleting yourself
   if (session.user.id === id) {

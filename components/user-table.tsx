@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { getUserPermissions } from "@/lib/permissions"
 
 interface User {
   id: string
@@ -37,7 +38,28 @@ interface UserTableProps {
 export default function UserTable({ users }: UserTableProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  const [userPermissions, setUserPermissions] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
+
+  // Fetch user permissions on component mount
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const permissions = await getUserPermissions()
+        setUserPermissions(permissions)
+      } catch (error) {
+        console.error("Failed to fetch user permissions:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPermissions()
+  }, [])
+
+  const canEditUsers = userPermissions.includes("edit_users") || userPermissions.includes("manage_users")
+  const canDeleteUsers = userPermissions.includes("delete_users") || userPermissions.includes("manage_users")
 
   const handleDelete = async () => {
     if (!userToDelete) return
@@ -51,6 +73,10 @@ export default function UserTable({ users }: UserTableProps) {
       setDeleteDialogOpen(false)
       setUserToDelete(null)
     }
+  }
+
+  if (loading) {
+    return <div className="py-10 text-center">Loading...</div>
   }
 
   return (
@@ -94,30 +120,36 @@ export default function UserTable({ users }: UserTableProps) {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => router.push(`/dashboard/users/${user.id}`)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setUserToDelete(user)
-                              setDeleteDialogOpen(true)
-                            }}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {(canEditUsers || canDeleteUsers) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {canEditUsers && (
+                              <DropdownMenuItem onClick={() => router.push(`/dashboard/users/${user.id}`)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {canDeleteUsers && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setUserToDelete(user)
+                                  setDeleteDialogOpen(true)
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

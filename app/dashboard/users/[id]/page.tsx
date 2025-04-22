@@ -12,13 +12,22 @@ interface UserEditPageProps {
 
 export default async function UserEditPage({ params }: UserEditPageProps) {
   const session = await getSession()
+  const isNewUser = params.id === "new"
+
+  // Check appropriate permissions based on whether creating or editing
+  const canCreateUsers = await hasPermission(session?.user.id, "create_users")
+  const canEditUsers = await hasPermission(session?.user.id, "edit_users")
+
+  // For new users, check create permission; for existing users, check edit permission
+  const userHasPermission = isNewUser ? canCreateUsers : canEditUsers
+
+  // Also allow if user has the general manage_users permission
   const canManageUsers = await hasPermission(session?.user.id, "manage_users")
 
-  if (!canManageUsers) {
+  if (!userHasPermission && !canManageUsers) {
     redirect("/dashboard")
   }
 
-  const isNewUser = params.id === "new"
   const user = isNewUser ? null : await getUserById(params.id)
   const roles = await getRoles()
 
