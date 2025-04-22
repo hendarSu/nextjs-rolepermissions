@@ -97,7 +97,7 @@ export default function RoleForm({ role, allPermissions, isNewRole }: RoleFormPr
             <Label>Permissions</Label>
             <div className="grid gap-4 sm:grid-cols-2">
               {allPermissions.map((permission) => (
-                <div key={permission.id} className="flex items-start space-x-2">
+                <div key={permission.id} className="flex items-start space-x-2 p-2 rounded-md hover:bg-muted/50">
                   <Checkbox
                     id={`permission-${permission.id}`}
                     checked={selectedPermissions.includes(permission.id)}

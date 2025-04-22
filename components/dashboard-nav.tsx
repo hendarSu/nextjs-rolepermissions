@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/lib/actions/auth-actions"
-import { User, LogOut, ChevronDown, ShieldCheck } from "lucide-react"
+import { User, LogOut, ChevronDown, ShieldCheck, Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface DashboardNavProps {
   user: {
@@ -41,11 +42,45 @@ export default function DashboardNav({ user }: DashboardNavProps) {
 
   return (
     <header className="sticky top-0 z-10 border-b bg-background">
-      <div className="flex h-16 items-center px-6">
+      <div className="flex h-16 items-center px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <ShieldCheck className="h-6 w-6" />
-          <span>User Management</span>
+          <span className="hidden sm:inline">User Management</span>
         </Link>
+
+        {/* Mobile menu */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden ml-2">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 sm:w-72">
+            <div className="flex flex-col gap-4 py-4">
+              <Link href="/" className="flex items-center gap-2 font-semibold px-2">
+                <ShieldCheck className="h-6 w-6" />
+                <span>User Management</span>
+              </Link>
+              <nav className="flex flex-col gap-3 px-2">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary p-2 rounded-md",
+                      pathname === item.href ? "bg-muted text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Desktop navigation */}
         <nav className="hidden md:ml-8 md:flex md:gap-4 lg:gap-6">
           {navItems.map((item) => (
             <Link
@@ -65,8 +100,8 @@ export default function DashboardNav({ user }: DashboardNavProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                <span>{user.name}</span>
-                <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="hidden sm:inline">{user.name}</span>
+                <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground hidden sm:inline">
                   {user.role.name}
                 </span>
                 <ChevronDown className="h-4 w-4" />

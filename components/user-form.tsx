@@ -87,46 +87,48 @@ export default function UserForm({ user, roles, isNewUser }: UserFormProps) {
         <CardContent className="space-y-4 pt-6">
           {error && <div className="rounded-md bg-red-50 p-2 text-sm text-red-500">{error}</div>}
 
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">{isNewUser ? "Password" : "Password (leave blank to keep current)"}</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required={isNewUser}
-            />
-          </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="password">{isNewUser ? "Password" : "Password (leave blank to keep current)"}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required={isNewUser}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select value={roleId} onValueChange={setRoleId} required>
-              <SelectTrigger id="role">
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                {roles.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
-                    {role.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={roleId} onValueChange={setRoleId} required>
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch id="active" checked={active} onCheckedChange={setActive} />
-            <Label htmlFor="active">Active</Label>
+            <div className="flex items-center space-x-2 sm:col-span-2">
+              <Switch id="active" checked={active} onCheckedChange={setActive} />
+              <Label htmlFor="active">Active</Label>
+            </div>
           </div>
         </CardContent>
 
